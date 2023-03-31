@@ -39,7 +39,10 @@ public class User implements UserDetails {
 
     private boolean enabled = true;
 
-    private String profile;
+    @Lob
+    @JsonIgnore
+    @Column(columnDefinition = "blob",length = 500)
+    private byte[] profile;
 
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinTable(name = "users_roles",
@@ -58,6 +61,9 @@ public class User implements UserDetails {
         return authorities;
     }
 
+    public Integer getProfileHashCode(){
+        return this.profile != null ? Arrays.hashCode(this.profile) : null;
+    }
     @Override
     public String getUsername() {
         return this.userName;

@@ -2,13 +2,15 @@ package com.erich.exam.controllers;
 
 import static com.erich.exam.util.Path.PATH;
 
-import com.erich.exam.dto.UserDto;
+import com.erich.exam.entity.User;
 import com.erich.exam.services.impl.UserServiceImpl;
 import jakarta.validation.Valid;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.core.io.Resource;
+import org.springframework.http.*;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
 
 @RestController
 @RequestMapping(PATH + "user")
@@ -23,7 +25,7 @@ public class UserController {
 
     @PostMapping
     //@PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> crear(@Valid @RequestBody UserDto userDto) {
+    public ResponseEntity<?> crear(@Valid @RequestBody User userDto) {
         return new ResponseEntity<>(userService.create(userDto), HttpStatus.CREATED);
     }
 
@@ -37,5 +39,20 @@ public class UserController {
     public ResponseEntity<?> delete(@PathVariable Long id) {
         userService.deleteUser(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @PutMapping("/profile/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> updatePhoto(User user, @PathVariable Long id, @RequestPart("file") MultipartFile file) {
+        return new ResponseEntity<>(userService.uploadImg(user, id, file), HttpStatus.CREATED);
+
+    }
+
+    @GetMapping("/view/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> viewProfile(@PathVariable Long id) {
+        Resource resource = userService.viewPhoto(id);
+            return ResponseEntity.ok().contentType(MediaType.IMAGE_JPEG).body(resource);
+
     }
 }

@@ -1,6 +1,6 @@
 package com.erich.exam.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -17,9 +17,10 @@ public class Question {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(length = 5000)
+    @Column(length = 5000000)
     private String content;
 
+    @Transient
     private String image;
 
     @Column(name = "option_one")

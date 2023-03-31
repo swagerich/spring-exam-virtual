@@ -2,17 +2,20 @@ package com.erich.exam.services.impl;
 
 import com.erich.exam.entity.Role;
 import com.erich.exam.entity.User;
-import com.erich.exam.dto.UserDto;
 import com.erich.exam.exception.NotFoundException;
 import com.erich.exam.exception.ResourceException;
 import com.erich.exam.repository.RoleRepository;
 import com.erich.exam.repository.UserRepository;
 import com.erich.exam.services.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.Resource;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -29,12 +32,12 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public User create(UserDto userDto) {
-        if (userRepo.existsByUserName(userDto.getUserName())) {
+    public User create(User userDto) {
+        if (userRepo.existsByUserName(userDto.getUsername())) {
             throw new ResourceException("Username ya existe!!");
         }
         User user = User.builder()
-                .userName(userDto.getUserName())
+                .userName(userDto.getUsername())
                 .password(passwordEncoder.encode(userDto.getPassword()))
                 .firstName(userDto.getFirstName())
                 .lastName(userDto.getLastName())
@@ -67,7 +70,28 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User update(User user, Long id) {
-        return null;
+    @Transactional
+    public User uploadImg(User user, Long id, MultipartFile file) {
+        User u = userRepo.findById(id).orElseThrow(() -> new NotFoundException("Usuario con el id : '" + id + "' no encontrado!"));
+        //u.setUserName(user.getUsername());
+        u.setPhone(user.getPhone());
+        if (file != null && !file.isEmpty()) {
+            try {
+                u.setProfile(file.getBytes());
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return userRepo.save(u);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Resource viewPhoto(Long id) {
+        User user = userRepo.findById(id).orElseThrow(() -> new NotFoundException("Usuario no encontrado"));
+        if(user.getProfileHashCode().equals(1)){
+            throw new ResourceException("El usuario no contiene ninguna Foto !");
+        }
+        return new ByteArrayResource(user.getProfile());
     }
 }

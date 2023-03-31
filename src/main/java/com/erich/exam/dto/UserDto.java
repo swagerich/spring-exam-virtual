@@ -22,4 +22,6 @@ public class UserDto {
 
     private Integer phone;
 
+    private byte[] profile;
+
 }

@@ -1,6 +1,5 @@
 package com.erich.exam.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 

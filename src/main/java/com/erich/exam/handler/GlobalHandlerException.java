@@ -7,14 +7,14 @@ import org.springframework.http.ProblemDetail;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.client.ResourceAccessException;
+
 
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 
 @RestControllerAdvice
-public class HandlerException {
+public class GlobalHandlerException {
 
     @ExceptionHandler(NotFoundException.class)
     public ProblemDetail notFoundHandlerException(NotFoundException e) {
@@ -25,7 +25,7 @@ public class HandlerException {
         return problemDetail;
     }
 
-    @ExceptionHandler(ResourceAccessException.class)
+    @ExceptionHandler(ResourceException.class)
     public ProblemDetail resourceHandlerException(ResourceException e) {
         ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
         problemDetail.setTitle("Bad_Request");
@@ -34,7 +34,7 @@ public class HandlerException {
         return problemDetail;
     }
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ProblemDetail resourceHandlerException(MethodArgumentNotValidException e) {
+    public ProblemDetail methodHandlerException(MethodArgumentNotValidException e) {
         ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
         Map<String,String> errors = new HashMap<>();
         e.getBindingResult().getFieldErrors().forEach(x -> {
@@ -49,7 +49,7 @@ public class HandlerException {
     }
 
     @ExceptionHandler(Exception.class)
-    public ProblemDetail resourceHandlerException(Exception e) {
+    public ProblemDetail handlerException(Exception e) {
         ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.INTERNAL_SERVER_ERROR);
         problemDetail.setTitle("Internal_Server_Error");
         problemDetail.setDetail(e.getMessage());

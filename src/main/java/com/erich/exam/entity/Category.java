@@ -1,6 +1,6 @@
 package com.erich.exam.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -23,6 +23,7 @@ public class Category {
 
     private String title;
 
+    @Column(length = 50000)
     private String description;
 
    // @JsonIgnore
