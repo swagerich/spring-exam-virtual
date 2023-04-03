@@ -1,5 +1,6 @@
 package com.erich.exam.services.impl;
 
+import com.erich.exam.dto.EmailCustomDto;
 import com.erich.exam.entity.Role;
 import com.erich.exam.entity.User;
 import com.erich.exam.exception.NotFoundException;
@@ -16,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -30,11 +32,16 @@ public class UserServiceImpl implements UserService {
 
     private final PasswordEncoder passwordEncoder;
 
+    private final EmailServiceImpl emailService;
+
     @Override
     @Transactional
     public User create(User userDto) {
         if (userRepo.existsByUserName(userDto.getUsername())) {
             throw new ResourceException("Username ya existe!!");
+        }
+        if(userRepo.existsByEmail(userDto.getEmail())){
+            throw  new ResourceException("Email ya existe!!");
         }
         User user = User.builder()
                 .userName(userDto.getUsername())
@@ -51,6 +58,8 @@ public class UserServiceImpl implements UserService {
             roles.add(userRole.get());
             user.setRoles(roles);
         }
+        EmailCustomDto emailCustomDto = EmailCustomDto.builder().toEmails(Collections.singletonList(userDto.getEmail())).build();
+        emailService.sendEmailRegister(emailCustomDto,userDto.getUsername());
         return userRepo.save(user);
     }
 
